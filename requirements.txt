@@ -1,0 +1,8 @@
+python-dotenv
+openai
+fastapi
+pyngrok
+nest-asyncio
+twilio
+mysql-connector-python
+mcp
