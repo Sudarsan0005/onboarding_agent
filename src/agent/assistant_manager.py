@@ -126,7 +126,7 @@ async def extract_doc_info(image_path:str):
     print(f"completion_tokens::: {response.usage.completion_tokens}")
     print(f"total_tokens::: {response.usage.total_tokens}")
     print(f"Openai text>>>>> {response.choices[0].message.content}")
-    return response.choices[0].message.content
+    return json.loads(response.choices[0].message.content.replace("```","").replace("json",""))
   except Exception as e:
     print(e)
 

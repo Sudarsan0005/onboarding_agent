@@ -13,8 +13,6 @@ import requests
 import json
 
 
-
-
 def d_codeValidator(code:str)->Dict[str,Any]:
     try:
         url = "https://bpilmobile.bergerindia.com/DIGITALSTAGING/api/v1.0/DigitalStaging/GetDealerCodeValidation"
@@ -32,6 +30,72 @@ def d_codeValidator(code:str)->Dict[str,Any]:
         return jresponse
     except Exception as e:
         return {}
+def aadhar_otp_generator(aadhar_no:str):
+    try:
+        url = "https://bpilmobile.bergerindia.com/DIGITALSTAGING/api/v1.0/DigitalStaging/aadhaar-otp-request"
+
+        payload = json.dumps({
+            "user_id": "0",
+            "aadhaar_no":aadhar_no
+        })
+        headers = {
+            'Content-Type': 'application/json',
+            'AuthKey': 'DbZ6ddxltpijv5r3g5g5umrxodzh3qbvey'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        jresponse = json.loads(response.text)
+        return jresponse
+    except Exception as e:
+        return {}
+
+def aadhar_otp_validator(client_id:str,otp:str):
+    try:
+        url = "https://bpilmobile.bergerindia.com/DIGITALSTAGING/api/v1.0/DigitalStaging/aadhaar-otp-validate"
+
+        payload = json.dumps({
+            "user_id": "0",
+            "client_id": client_id,
+            "otp": otp
+        })
+        headers = {
+            'Content-Type': 'application/json',
+            'AuthKey': 'DbZ6ddxltpijv5r3g5g5umrxodzh3qbvey'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        print(response.text)
+
+        jresponse = json.loads(response.text)
+        return jresponse
+    except Exception as e:
+        return {}
+
+def pan_validator(pan_no:str):
+    try:
+        url = "https://bpilmobile.bergerindia.com/DIGITALSTAGING/api/v1.0/DigitalStaging/pan-validate"
+
+        payload = json.dumps({
+            "pan": pan_no
+        })
+        headers = {
+            'Content-Type': 'application/json',
+            'AuthKey': 'DbZ6ddxltpijv5r3g5g5umrxodzh3qbvey'
+        }
+
+        response = requests.request("GET", url, headers=headers, data=payload)
+
+        print(response.text)
+
+        jresponse = json.loads(response.text)
+        return jresponse
+    except Exception as e:
+        return {}
+
+
+
 @mcp.tool()
 def validate_dealer(dealer_code:str)->Dict[str,Any]:
     '''
@@ -44,31 +108,52 @@ def validate_dealer(dealer_code:str)->Dict[str,Any]:
         return response
     except Exception:
         return {}
-# @mcp.tool()
-# def aadhar_validator(doc_path:str):
-#     '''
-#     Validating aadhar card using card number
-#     :return:
-#     '''
-#     try:
-#         data = extract_doc_info(image_path=doc_path)
-#
-#     pass
-#
+@mcp.tool()
+def aadhar_otp_generator(doc_path:str):
+    '''
+    send otp to phone number linked with aadhar card by extracting data from document
+    Args:
+        doc_path: document path
+    '''
+    try:
+        data = extract_doc_info(image_path=doc_path)
+        if data["type"]=="aadhar":
+            otp_generation_status = aadhar_otp_generator(aadhar_no=data["aadhar_no"])
+            return otp_generation_status
+        return {"status":"docuemnt is not valid please provide a valid aadhar card"}
+    except Exception:
+        return {"status":"Failed"}
+
+@mcp.tool()
+def aadhar_otp_validator(client_id:str, otp:str):
+    '''
+    validating opt if it is correct or not
+    Args:
+        client_id: unique id generated while generating otp from Aadhar
+        otp: otp
+    '''
+    try:
+        status = aadhar_otp_validator(client_id=client_id,otp=otp)
+        return status
+    except Exception:
+        return {"status":"Failed"}
+
 @mcp.tool()
 def pan_validator(doc_path:str):
     '''
-    validating pan card using pan number
-    :return:
+    extracting pancard details from document and return validation status
+    Args:
+        doc_path: document path
     '''
-    pass
-# @mcp.tool()
-# def ifsc_validator(doc_path:str):
-#     '''
-#     validating bank ifsc code return valid or not
-#     :return:
-#     '''
-#     pass
+    try:
+        data = extract_doc_info(image_path=doc_path)
+        if data["type"]=="pan":
+            pan_validation_status = pan_validator(pan_no=data["pan_no"])
+            return pan_validation_status
+        return {"status":"docuemnt is not valid please provide a valid pan card"}
+    except Exception:
+        return {"status":"Failed"}
+
 
 if __name__ == "__main__":
     # Initialize and run the server
