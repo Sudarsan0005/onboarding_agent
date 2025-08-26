@@ -94,7 +94,20 @@ def pan_validator(pan_no:str):
     except Exception as e:
         return {}
 
+def ifsc_validator(ifsc_no:str):
+    try:
+        url = f"https://ifsc.razorpay.com/{ifsc_no}"
 
+        payload = {}
+        headers = {}
+
+        response = requests.request("GET", url, headers=headers, data=payload)
+        if response.text != "Not Found":
+            return {"status": 0, "message": "Validation failed: IFSC code Invalid"}
+        else:
+            return json.loads(response.text)
+    except Exception as e:
+        return {"status":0,"message":"Please provide valid document"}
 
 @mcp.tool()
 def validate_dealer(dealer_code:str)->Dict[str,Any]:
@@ -151,6 +164,22 @@ def pan_validator(doc_path:str):
             pan_validation_status = pan_validator(pan_no=data["pan_no"])
             return pan_validation_status
         return {"status":"docuemnt is not valid please provide a valid pan card"}
+    except Exception:
+        return {"status":"Failed"}
+
+@mcp.tool()
+def ifscCodeValidator(doc_path:str):
+    '''
+    extracting ifsc code details from document and return validation status
+    Args:
+        doc_path: document path
+    '''
+    try:
+        data = extract_doc_info(image_path=doc_path)
+        if data["type"]=="Passbook":
+            ifsc_validation_status = ifsc_validator(ifsc_no=data["ifsc_code"])
+            return ifsc_validation_status
+        return {"status":"document is not valid please provide a valid pan card"}
     except Exception:
         return {"status":"Failed"}
 

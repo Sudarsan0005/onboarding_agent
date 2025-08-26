@@ -68,6 +68,12 @@ class Assistant:
                                 "tool_call_id": tool.id,
                                 "output": result
                             })
+                        if tool.function.name == "validate_dealer":
+                            pass
+                        if tool.function.name == "test":
+                            pass
+                        if tool.function.name == "check":
+                            pass
                     if tool_outputs:
                         try:
                             run = client.beta.threads.runs.submit_tool_outputs_and_poll(
