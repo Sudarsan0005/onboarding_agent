@@ -57,23 +57,22 @@ class Assistant:
                 if run.status == "requires_action":
                     tool_outputs=[]
                     for tool in run.required_action.submit_tool_outputs.tool_calls:
-                        if tool.function.name == "validate_dealer":
-                            tool_name = tool.function.name
-                            tool_args = tool.function.arguments
-                            tool_args = json.loads(tool_args)
-                            # Execute tool call
-                            result = await call_mcp_tools(tool_name,tool_args)
+                        tool_name = tool.function.name
+                        tool_args = tool.function.arguments
+                        tool_args = json.loads(tool_args)
+                        # Execute tool call
+                        result = await call_mcp_tools(tool_name,tool_args)
 
-                            tool_outputs.append({
-                                "tool_call_id": tool.id,
-                                "output": result
-                            })
-                        if tool.function.name == "validate_dealer":
-                            pass
-                        if tool.function.name == "test":
-                            pass
-                        if tool.function.name == "check":
-                            pass
+                        tool_outputs.append({
+                            "tool_call_id": tool.id,
+                            "output": result
+                        })
+                        # if tool.function.name == "validate_dealer":
+                        #     pass
+                        # if tool.function.name == "test":
+                        #     pass
+                        # if tool.function.name == "check":
+                        #     pass
                     if tool_outputs:
                         try:
                             run = client.beta.threads.runs.submit_tool_outputs_and_poll(

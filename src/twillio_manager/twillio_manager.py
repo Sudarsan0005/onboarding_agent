@@ -11,7 +11,7 @@ DOC_DIR = os.path.join(BASE_DIR, 'document')
 os.makedirs(DOC_DIR, exist_ok=True)
 
 account_sid = "AC26778d96aa9dbb9ef3eff0d724482da2"
-auth_token = "d22bac364143e6c089ba4aca2512b979"
+auth_token = "32305c776d0c99a2907e8acca891bdb1"
 
 async def download_image(media_url,phone_no):
   try:
@@ -52,5 +52,6 @@ async def send_twilio(msg, sender):
 # Hello how are you \n good to see you
 # """
 # sender="+918144792775"
-# sid = send_twilio(msg, sender)
+# import asyncio
+# sid = asyncio.run(send_twilio(msg, sender))
 # print(sid)

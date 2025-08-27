@@ -6,13 +6,16 @@ import os
 import shutil
 from fastapi import UploadFile, Form,APIRouter
 from fastapi.responses import JSONResponse
+from twillio_manager.twillio_manager import download_image,send_twilio
 from pyngrok import ngrok
 import nest_asyncio
 import uvicorn
 from typing import Optional
 
 router = APIRouter()
+assistant_client = Assistant()
 nest_asyncio.apply()
+phone_no_tracking={}
 
 @router.post("/enrollment_qa")
 async def enrollment_qa(
@@ -26,20 +29,19 @@ async def enrollment_qa(
       phone_no=phone_no.replace("whatsapp:","")
       phone_thread_id=phone_no_tracking.get(phone_no,"")
       if phone_thread_id=="":
-        phone_thrd_id = client.beta.threads.create()
+        phone_thrd_id = assistant_client.create_thread()
         phone_thread_id = phone_thrd_id.id
         phone_no_tracking[phone_no]=phone_thread_id
         print("thread id.>>>>>>>>>>")
         print(phone_thread_id)
       if NumMedia > 0 and MediaUrl0:
         stored_img_path = await download_image(media_url=MediaUrl0,phone_no=phone_no)
-        doc_data= await extract_doc_info(stored_img_path)
+        # doc_data= await extract_doc_info(stored_img_path)
         if Body!="":
-          doc_data= doc_data + f"User message: {Body}"
-        print(f"doc data>>>>>>{doc_data}")
-        ai_response = await run_assistant(assistant_id,phone_thread_id,doc_data)
+            doc_data= f"User message: {Body}" + '\n' + f"Doc path: {stored_img_path}"
+            ai_response = await assistant_client.run_assistant(phone_thread_id,doc_data)
       else:
-        ai_response = await run_assistant(assistant_id,phone_thread_id,Body)
+        ai_response = await assistant_client.run_assistant(phone_thread_id,Body)
       print(f"AI response>>>>>>>>{ai_response}")
       message_id = await send_twilio(msg=str(ai_response),sender=phone_no)
       if message_id:
@@ -49,10 +51,3 @@ async def enrollment_qa(
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Start ngrok tunnel
-# ngrok.kill()
-public_url = ngrok.connect(4001)
-print("Public URL:", public_url)
-
-# Run server in background
-uvicorn.run(app, host='0.0.0.0', port=4001)

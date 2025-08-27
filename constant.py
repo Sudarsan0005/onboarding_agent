@@ -8,6 +8,7 @@ DB_PORT=os.getenv("DB_port")
 DB_USER=os.getenv("DB_user")
 DB_PASSWORD=os.getenv("DB_password")
 DB_DATABASE=os.getenv("DB_database")
+PORT = os.getenv("PORT")
 DB_Manager=DatabaseManager(DB_HOST=DB_HOST,DB_PORT=DB_PORT,DB_USER=DB_USER,DB_PASSWORD=DB_PASSWORD,DB_DATABASE=DB_DATABASE)
 os.environ["OPENAI_API_KEY"] =DB_Manager.get_openai_key()['openai_key']
 
