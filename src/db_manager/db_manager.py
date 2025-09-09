@@ -171,17 +171,17 @@ class DatabaseManager:
             logger.error(f"Error inserting user setting: {e}")
             return False
 
-    def get_user_setting(self, phone_no: str) -> Optional[Dict[str, Any]]:
+    def get_user_setting(self, phone_no: str) -> str:
         """Get user setting by phone_no"""
         try:
             with self.get_connection() as (conn, cursor):
-                query = "SELECT * FROM user_setting WHERE phone_no = %s"
+                query = "SELECT thread_id FROM user_setting WHERE phone_no = %s"
                 cursor.execute(query, (phone_no,))
                 result = cursor.fetchone()
-                return result
+                return result["thread_id"]
         except Error as e:
             logger.error(f"Error getting user setting: {e}")
-            return None
+            return ""
 
     def update_user_setting(self, phone_no: str, thread_id: str) -> bool:
         """Update user setting thread_id"""
